@@ -1,0 +1,22 @@
+.patient-details-container {
+  padding: 30px;
+}
+
+.patient-details-title {
+  color: white;
+  margin-bottom: 20px;
+}
+
+.info-card {
+  background: #041b45;
+  border: 1px solid #0ea5e9;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.info-card h2 {
+  color: #38bdf8;
+  margin-bottom: 10px;
+}
