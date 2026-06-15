@@ -7,14 +7,14 @@ const pool = require("../config/db");
 // add vitals
 router.post("/", async (req, res) => {
   try {
-    const { patient_id, heart_rate, spo2, temperature, weight } = req.body;
+    const { patient_id, heart_rate, spo2, temperature, iv_level } = req.body;
 
     console.log(req.body);
 
     const result = await pool.query(
-      `INSERT INTO vitals (patient_id, heart_rate, spo2, temperature) 
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [patient_id, heart_rate, spo2, temperature]
+      `INSERT INTO vitals (patient_id, heart_rate, spo2, temperature, iv_level) 
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [patient_id, heart_rate, spo2, temperature, iv_level]
     );
     
      // Alert Generation
@@ -48,7 +48,7 @@ patient_id,
 ]
 );
 }
- if (temperature > 38.0 || (currentTemp < 35.0 && currentTemp > 0.0)) {
+ if (temperature > 38.0 || (temperature < 35.0 && temperature > 0.0)) {
   await pool.query(
     `INSERT INTO alerts (patient_id, alert_type, message) VALUES ($1, $2, $3)`,
     [patient_id, "HIGH_TEMPERATURE", "High body temperature detected"]

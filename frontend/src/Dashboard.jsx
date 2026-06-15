@@ -8,8 +8,7 @@ export default function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [stats, setStats] = useState({
     patients: 0,
-    alarms: 0,
-    fluidDeficit: '0 ml'
+    alarms: 0
   });
   const [patients, setPatients] = useState([]);
   const [vitals, setVitals] = useState([]);
@@ -32,17 +31,15 @@ export default function Dashboard() {
   const user = JSON.parse(localStorage.getItem("clinician")) || {};
   setUserData(user);
 
-  if (user.role === "Doctor") {
+  loadMonitoringData();
+  loadAlerts();
+
+  const interval = setInterval(() => {
     loadMonitoringData();
     loadAlerts();
+  }, 5000);
 
-    const interval = setInterval(() => {
-      loadMonitoringData();
-      loadAlerts();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }
+  return () => clearInterval(interval);
 }, []);
 
   useEffect(() => {
@@ -170,8 +167,27 @@ const loadAlerts = async () => {
     window.location.hash = '#/';
   };
 
-  const isAdmin = userData?.role === "Admin";
-  const isDoctor = userData?.role === "Doctor";
+  const handleClearPatient = async (patientId, name) => {
+    if (!window.confirm(`Are you sure you want to clear/discharge ${name}?`)) {
+      return;
+    }
+
+    try {
+      await axios.delete(`http://localhost:5000/patient/${patientId}`);
+      await loadMonitoringData();
+      if (showPatientList) {
+        await loadPatients();
+      }
+      loadAlerts();
+    } catch (error) {
+      console.error("Failed to clear patient:", error);
+      const msg = error.response && error.response.data ? error.response.data : error.message;
+      alert(`Failed to clear patient: ${msg}`);
+    }
+  };
+
+  const isAdmin = true;
+  const isDoctor = true;
 
   return (
     <div className="dashboard">
@@ -219,88 +235,116 @@ const loadAlerts = async () => {
               <div className="stat-value alert">{stats.alarms} Active</div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">💧</div>
-            <div className="stat-text">
-              <div className="stat-label">Fluid Deficit</div>
-              <div className="stat-value">{stats.fluidDeficit}</div>
-            </div>
-          </div>
         </div>
+ 
+         <div className="monitoring-section">
+           {isDoctor && (
+   <div className="monitoring-grid">
+ 
+     {monitoringData.map((patient) => {
+        const isCritical = 
+          (patient.heart_rate !== null && patient.heart_rate !== undefined && patient.heart_rate > 120) || 
+          (patient.spo2 !== null && patient.spo2 !== undefined && patient.spo2 < 90) || 
+          (patient.temperature !== null && patient.temperature !== undefined && patient.temperature > 38.5);
+       const ivLevel = patient.iv_bottle_level ?? patient.iv_level ?? patient.iv ?? patient.ivBottle ?? "--";
+       return (
+         <div
+           key={patient.patient_id}
+           className={`doctor-patient-card ${isCritical ? "critical-card" : ""}`}
+         >
+           <div className="card-header">
+             <span className="bed-badge">Bed {patient.bed_number || "N/A"}</span>
+             <span className={`status-badge ${patient.device_code ? "active" : "inactive"}`}>
+               <span className="dot" style={{ display: patient.device_code ? "inline-block" : "none" }}></span>
+               {patient.device_code ? "Online" : "Offline"}
+             </span>
+           </div>
 
-        <div className="monitoring-section">
-          {isDoctor && (
-  <div className="monitoring-grid">
+           <div className="patient-identity">
+             <h3 className="patient-name">{patient.full_name}</h3>
+             <span className="patient-code">{patient.patient_code}</span>
+           </div>
 
-    {monitoringData.map((patient) => (
+           <div className="device-info-bar">
+             <span className="chip-icon">🖲️</span>
+             <span>Device: <code>{patient.device_code || "Not paired"}</code></span>
+           </div>
 
-      <div
-        key={patient.patient_id}
-        className={`doctor-patient-card
-${
-  patient.heart_rate > 120 ||
-  patient.spo2 < 90 ||
-  patient.temperature > 38.5
-    ? "critical-card"
-    : ""
-}`}
-      >
+           <div className="vitals-readout-grid">
+             <div className={`vital-indicator ${patient.heart_rate > 120 ? "warning-text" : ""}`}>
+               <div className="vital-label-row">
+                 <span className="vital-icon">❤️</span>
+                 <span>HR</span>
+               </div>
+               <div className="vital-value-row">
+                 <span className="value">{patient.heart_rate ?? "--"}</span>
+                 <span className="unit">bpm</span>
+               </div>
+             </div>
 
-        <h3>{patient.patient_code}</h3>
+             <div className={`vital-indicator ${patient.spo2 < 90 ? "warning-text" : ""}`}>
+               <div className="vital-label-row">
+                 <span className="vital-icon">🩸</span>
+                 <span>SpO2</span>
+               </div>
+               <div className="vital-value-row">
+                 <span className="value">{patient.spo2 ?? "--"}</span>
+                 <span className="unit">%</span>
+               </div>
+             </div>
 
-        <p>
-          <strong>Name:</strong>
-          {" "}
-          {patient.full_name}
-        </p>
+             <div className={`vital-indicator ${patient.temperature > 38.5 ? "warning-text" : ""}`}>
+               <div className="vital-label-row">
+                 <span className="vital-icon">🌡️</span>
+                 <span>Temp</span>
+               </div>
+               <div className="vital-value-row">
+                 <span className="value">{patient.temperature ?? "--"}</span>
+                 <span className="unit">°C</span>
+               </div>
+             </div>
+             <div className="vital-indicator iv-bottle-card">
+               <div className="vital-label-row">
+                 <span className="vital-icon">💧</span>
+                 <span>IV Level</span>
+               </div>
+               <div className="vital-value-row">
+                 <span className="value">{ivLevel}</span>
+                 <span className="unit">{ivLevel === "--" ? "" : "%"}</span>
+               </div>
+             </div>
+           </div>
 
-        <p>
-          <strong>Device:</strong>
-          {" "}
-          {patient.device_code || "Not Assigned"}
-        </p>
+           {isCritical && (
+             <div className="critical-banner">
+               ⚠️ CRITICAL LIMITS EXCEEDED
+             </div>
+           )}
 
-        <p>
-          <strong>Status:</strong>
-          {" "}
-          {patient.status || "-"}
-        </p>
-
-        <hr />
-
-        <p>
-          ❤️ HR:
-          {" "}
-          {patient.heart_rate ?? "--"}
-        </p>
-
-        <p>
-          🩸 SpO2:
-          {" "}
-          {patient.spo2 ?? "--"}
-        </p>
-
-        <p>
-          🌡 Temp:
-          {" "}
-          {patient.temperature ?? "--"}
-        </p>
-
-        <button
-          onClick={() =>
-            (window.location.hash =
-              `#/patient/${patient.patient_id}`)
-          }
-        >
-          Live Monitoring
-        </button>
-
-      </div>
-
-    ))}
-
-  </div>
-)}
+           <div className="card-actions-row" style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+             <button
+               className="btn-live-monitor"
+               style={{ flex: 1, marginTop: 0 }}
+               onClick={() =>
+                 (window.location.hash =
+                   `#/patient/${patient.patient_id}`)
+               }
+             >
+               Telemetry →
+             </button>
+             <button
+               className="btn-clear-patient"
+               onClick={() => handleClearPatient(patient.patient_id, patient.full_name)}
+             >
+               Clear
+             </button>
+           </div>
+         </div>
+       );
+     })}
+ 
+   </div>
+ )}
 
 {isDoctor && (
   <div className="alert-panel">
@@ -468,16 +512,23 @@ ${
       <td>{patient.full_name}</td>
 
       <td>
-        {isAdmin && (
+        <div style={{ display: 'flex', gap: '10px' }}>
           <button
             onClick={() =>
               (window.location.hash =
                 `#/patient/${patient.patient_id}`)
             }
+            style={{ background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontWeight: 600 }}
           >
             View Details
           </button>
-        )}
+          <button
+            onClick={() => handleClearPatient(patient.patient_id, patient.full_name)}
+            style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', cursor: 'pointer', padding: '6px 12px', borderRadius: '6px', fontWeight: 600 }}
+          >
+            Clear
+          </button>
+        </div>
       </td>
     </tr>
   ))}
@@ -487,17 +538,6 @@ ${
             )}
           </div>
         </div>
-        {isAdmin && (
-        <div className="quick-actions">
-          <h3>Quick Actions</h3>
-          <div className="action-buttons">
-            <button className="action-btn">View Patient Records</button>
-            <button className="action-btn">Manage Alarms</button>
-            <button className="action-btn">Generate Reports</button>
-            <button className="action-btn">Settings</button>
-          </div>
-        </div>
-      )}
       </div>
     </div> 
   );

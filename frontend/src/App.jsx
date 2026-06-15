@@ -1,4 +1,5 @@
-﻿import axios from "axios";                       import { useState, useEffect } from 'react';
+import axios from "axios";                       
+import { useState, useEffect } from 'react';
 import './App.css';
 import Navigation from './Navigation';
 import Home from './Home';
@@ -7,7 +8,7 @@ import Register from './Register';
 import PatientDetails from "./PatientDetails";
 
 function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [userid, setUserid] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSubmit = async (event) => {
@@ -17,7 +18,7 @@ function LoginPage() {
     const response = await axios.post(
       "http://localhost:5000/user/login",
       {
-        email,
+        userid,
         password
       }
     );
@@ -30,7 +31,7 @@ function LoginPage() {
     window.location.hash = "#/dashboard";
 
   } catch (err) {
-    alert("Invalid Email or Password");
+    alert("Invalid User ID or Password");
   }
 };
 
@@ -48,14 +49,14 @@ function LoginPage() {
 
           <form className="login-form" onSubmit={handleSubmit}>
             <label>
-              EMAIL
+              USER ID
               <div className="input-group">
                 <span className="input-icon">👤</span>
                 <input
-                  type="text"
-                  placeholder="e.g. user@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="number"
+                  placeholder="Enter User ID"
+                  value={userid}
+                  onChange={(e) => setUserid(e.target.value)}
                   required
                 />
               </div>
@@ -110,13 +111,11 @@ if (route.startsWith("/patient/")) {
   const clinician =
     JSON.parse(localStorage.getItem("clinician")) || {};
 
-  if (clinician.role !== "Admin" &&
-      cinician.role !== "Doctor"
-  ) {
+  if (!clinician.userid && !clinician.full_name) {
 
     content = (
       <h2 style={{padding:"20px"}}>
-        Access Denied
+        Access Denied - Please Login
       </h2>
     );
 

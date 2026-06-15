@@ -27,6 +27,7 @@ router.get("/monitoring/all", async (req, res) => {
         v.heart_rate,
         v.spo2,
         v.temperature,
+        v.iv_level,
         v.recorded_at
 
       FROM patients p
@@ -38,7 +39,7 @@ router.get("/monitoring/all", async (req, res) => {
         SELECT DISTINCT ON (patient_id)
         *
         FROM vitals
-        ORDER BY patient_code, recorded_at DESC
+        ORDER BY patient_id, recorded_at DESC
       ) v
       ON p.patient_id = v.patient_id
 
@@ -109,13 +110,16 @@ router.put("/:id", async (req, res) => {
 // 5. DELETE patient
 router.delete("/:id", async (req, res) => {
   try {
-    await pool.query(
-      "DELETE FROM patients WHERE patient_id=$1",
-      [req.params.id]
-    );
+    const patientId = req.params.id;
+    // Delete referenced records first to avoid foreign key failures
+    await pool.query("DELETE FROM devices WHERE patient_id=$1", [patientId]);
+    await pool.query("DELETE FROM vitals WHERE patient_id=$1", [patientId]);
+    await pool.query("DELETE FROM alerts WHERE patient_id=$1", [patientId]);
+    await pool.query("DELETE FROM patients WHERE patient_id=$1", [patientId]);
 
     res.send("Patient deleted");
   } catch (err) {
+    console.error("DELETE PATIENT ERROR:", err);
     res.status(500).send(err.message);
   }
 });

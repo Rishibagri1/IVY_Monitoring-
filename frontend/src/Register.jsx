@@ -4,9 +4,8 @@ import './App.css';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
+  const [userid, setUserid] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('Clinician');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,16 +18,15 @@ export default function Register() {
     try {
       const resp = await axios.post('http://localhost:5000/user', {
         full_name: fullName,
-        email,
+        userid: userid,
         password,
-        role,
       });
 
       // Save clinician info locally and navigate
       const created = resp.data;
       localStorage.setItem('clinician', JSON.stringify({
         full_name: created.full_name,
-        email: created.email,
+        userid: created.userid,
         role: created.role,
       }));
 
@@ -46,7 +44,7 @@ export default function Register() {
           <div className="dashboard-header">
             <div className="dashboard-icon">↗</div>
             <div>
-              <h1>Vital Monitoring</h1>
+              <h1>Vital Monitoring </h1>
               <p>Register your credentials to get access</p>
             </div>
           </div>
@@ -58,7 +56,7 @@ export default function Register() {
                 <span className="input-icon">🛡️</span>
                 <input
                   type="text"
-                  placeholder="e.g. Dr. Arthur Pendelton"
+                  placeholder="Name"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
@@ -67,14 +65,14 @@ export default function Register() {
             </label>
 
             <label>
-              EMAIL
+              USER ID
               <div className="input-group">
                 <span className="input-icon">📧</span>
                 <input
-                  type="email"
-                  placeholder="e.g. user@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="number"
+                  placeholder="User ID"
+                  value={userid}
+                  onChange={(e) => setUserid(e.target.value)}
                   required
                 />
               </div>
@@ -94,17 +92,7 @@ export default function Register() {
               </div>
             </label>
 
-            <label>
-              ROLE
-              <div className="input-group">
-                <span className="input-icon">👔</span>
-                <select value={role} onChange={(e) => setRole(e.target.value)}>
-                  <option value="Clinician">Clinician</option>
-                  <option value="Admin">Admin</option>
-                </select>
-              </div>
-            </label>
-
+          
             <button type="submit" className="primary-button">
               Register Credentials ✚
             </button>

@@ -5,7 +5,7 @@ const pool = require('../config/db');
 // GET all users (for debug/dev)
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT user_id, full_name, email, role, created_at FROM users');
+    const result = await pool.query('SELECT user_id, full_name, userid, role, created_at FROM users');
     res.json(result.rows);
   } catch (err) {
     res.status(500).json(err.message);
@@ -15,16 +15,16 @@ router.get('/', async (req, res) => {
 // POST create a new user
 router.post('/', async (req, res) => {
   try {
-    const { full_name, email, password, role } = req.body;
+    const { full_name, userid, password, role } = req.body;
 
-    if (!full_name || !email || !password) {
-      return res.status(400).json('full_name, email and password are required');
+    if (!full_name || !userid || !password) {
+      return res.status(400).json('full_name, userid and password are required');
     }
 
     // For now store provided password in password_hash column (dev only)
     const result = await pool.query(
-      `INSERT INTO users (full_name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING user_id, full_name, email, role, created_at`,
-      [full_name, email, password, role || 'Clinician']
+      `INSERT INTO users (full_name, userid, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING user_id, full_name, userid, role, created_at`,
+      [full_name, String(userid), password, role || 'Doctor']
     );
 
     res.json(result.rows[0]);
@@ -37,13 +37,13 @@ router.post('/', async (req, res) => {
 // LOGIN
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { userid, password } = req.body;
 
     const result = await pool.query(
-      `SELECT * FROM users
-       WHERE email = $1
+      `SELECT user_id, full_name, userid, role, created_at FROM users
+       WHERE userid = $1
        AND password_hash = $2`,
-      [email, password]
+      [String(userid), password]
     );
 
     if (result.rows.length === 0) {
