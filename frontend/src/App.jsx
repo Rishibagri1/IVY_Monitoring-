@@ -104,6 +104,12 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
 
+  // Wake up the Render backend on app load (free tier sleeps after 15 min).
+  // This silent ping gives the server ~30s to wake up before the user logs in.
+  useEffect(() => {
+    axios.get(`${API_BASE}/check`).catch(() => {});
+  }, []);
+
 // Render content based on route
 let content;
 
