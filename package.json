@@ -1,0 +1,8 @@
+{
+  "name": "ivy-monitoring",
+  "version": "1.0.0",
+  "description": "IVY Patient Monitoring System - IAF",
+  "scripts": {
+    "start": "node backend/src/server.js"
+  }
+}
