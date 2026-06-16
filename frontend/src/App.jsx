@@ -1,4 +1,5 @@
-import axios from "axios";                       
+import axios from "axios";
+import API_BASE from "./config";
 import { useState, useEffect } from 'react';
 import './App.css';
 import Navigation from './Navigation';
@@ -16,7 +17,7 @@ function LoginPage() {
 
   try {
     const response = await axios.post(
-      "http://localhost:5000/user/login",
+      `${API_BASE}/user/login`,
       {
         userid,
         password

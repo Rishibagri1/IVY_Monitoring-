@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE from "./config";
 
 function AlertDashboard() {
   const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/alert")
+      .get(`${API_BASE}/alert`)
       .then((res) => setAlerts(res.data))
       .catch((err) => console.error(err));
   }, []);

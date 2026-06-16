@@ -1,6 +1,7 @@
 import "./PatientDetails.css";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE from "./config";
 
 export default function PatientDetails({ patientId }) {
   const clinician = JSON.parse(localStorage.getItem("clinician")) || {};
@@ -23,7 +24,7 @@ export default function PatientDetails({ patientId }) {
 
   const assignDevice = async () => {
     try {
-      await axios.post("http://localhost:5000/device/assign", {
+      await axios.post(`${API_BASE}/device/assign`, {
         patient_id: patientId,
         device_code: deviceCode,
       });
@@ -36,18 +37,18 @@ export default function PatientDetails({ patientId }) {
 
   const loadData = async () => {
     try {
-      const patientRes = await axios.get(`http://localhost:5000/patient/${patientId}`);
+      const patientRes = await axios.get(`${API_BASE}/patient/${patientId}`);
       setPatient(patientRes.data);
 
-      const vitalRes = await axios.get(`http://localhost:5000/vital/latest/${patientId}`);
+      const vitalRes = await axios.get(`${API_BASE}/vital/latest/${patientId}`);
       setLatestVital(vitalRes.data);
 
-      const deviceRes = await axios.get(`http://localhost:5000/device/patient/${patientId}`);
+      const deviceRes = await axios.get(`${API_BASE}/device/patient/${patientId}`);
       if (deviceRes.data && deviceRes.data.length > 0) {
         setDevice(deviceRes.data[0]);
       }
 
-      const alertRes = await axios.get(`http://localhost:5000/alert/${patientId}`);
+      const alertRes = await axios.get(`${API_BASE}/alert/${patientId}`);
       setAlerts(alertRes.data);
     } catch (err) {
       console.error("Load Data Error:", err);

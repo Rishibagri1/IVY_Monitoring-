@@ -1,6 +1,7 @@
 import './Dashboard.css';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import API_BASE from './config';
 
 export default function Dashboard() {
   const clinician =
@@ -55,7 +56,7 @@ export default function Dashboard() {
   const loadPatients = async () => {
     setLoadingPatients(true);
     try {
-      const response = await axios.get('http://localhost:5000/patient');
+      const response = await axios.get(`${API_BASE}/patient`);
       setPatients(response.data);
       setPatientsLoaded(true);
       setStats((current) => ({
@@ -74,7 +75,7 @@ export default function Dashboard() {
   const loadMonitoringData = async () => {
   try {
     const response = await axios.get(
-      "http://localhost:5000/patient/monitoring/all"
+      `${API_BASE}/patient/monitoring/all`
     );
 
     setMonitoringData(response.data);
@@ -92,7 +93,7 @@ export default function Dashboard() {
 const loadAlerts = async () => {
   try {
     const response = await axios.get(
-      "http://localhost:5000/alert"
+      `${API_BASE}/alert`
     );
 
     setAlerts(response.data);
@@ -108,7 +109,7 @@ const loadAlerts = async () => {
 
   const loadVitals = async () => {
   try {
-    const response = await axios.get("http://localhost:5000/vital");
+    const response = await axios.get(`${API_BASE}/vital`);
     setVitals(response.data);
   } catch (error) {
     console.error("Failed to load vitals:", error);
@@ -129,7 +130,7 @@ const loadAlerts = async () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/patient', {
+      const response = await axios.post(`${API_BASE}/patient`, {
         full_name: newPatient.full_name,
         age: Number(newPatient.age),
         gender: newPatient.gender,
@@ -173,7 +174,7 @@ const loadAlerts = async () => {
     }
 
     try {
-      await axios.delete(`http://localhost:5000/patient/${patientId}`);
+      await axios.delete(`${API_BASE}/patient/${patientId}`);
       await loadMonitoringData();
       if (showPatientList) {
         await loadPatients();
