@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
     // For now store provided password in password_hash column (dev only)
     const result = await pool.query(
       `INSERT INTO users (full_name, userid, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING user_id, full_name, userid, role, created_at`,
-      [full_name, String(userid), password, role || 'Doctor']
+      [full_name, String(userid), password, role || 'Nurse']
     );
 
     res.json(result.rows[0]);
