@@ -6,13 +6,11 @@ import API_BASE from './config';
 export default function Dashboard() {
   const clinician =
   JSON.parse(localStorage.getItem("clinician")) || {};
-  const [userData, setUserData] = useState(null);
   const [stats, setStats] = useState({
     patients: 0,
     alarms: 0
   });
   const [patients, setPatients] = useState([]);
-  const [vitals, setVitals] = useState([]);
   const [monitoringData, setMonitoringData] = useState([]);
   const [alerts, setAlerts] = useState([]);
   const [patientsLoaded, setPatientsLoaded] = useState(false);
@@ -29,10 +27,7 @@ export default function Dashboard() {
   const [formMessage, setFormMessage] = useState('');
 
   useEffect(() => {
-  const user = JSON.parse(localStorage.getItem("clinician")) || {};
-  setUserData(user);
-
-  loadMonitoringData();
+loadMonitoringData();
   loadAlerts();
 
   const interval = setInterval(() => {
@@ -43,15 +38,6 @@ export default function Dashboard() {
   return () => clearInterval(interval);
 }, []);
 
-  useEffect(() => {
-  loadVitals();
-
-  const interval = setInterval(() => {
-    loadVitals();
-  }, 5000);
-
-  return () => clearInterval(interval);
-  }, []);
 
   const loadPatients = async () => {
     setLoadingPatients(true);
@@ -106,15 +92,6 @@ const loadAlerts = async () => {
     console.error(err);
   }
 };
-
-  const loadVitals = async () => {
-  try {
-    const response = await axios.get(`${API_BASE}/vital`);
-    setVitals(response.data);
-  } catch (error) {
-    console.error("Failed to load vitals:", error);
-  }
-  };
 
   const handlePatientInput = (name, value) => {
     setNewPatient((prev) => ({ ...prev, [name]: value }));

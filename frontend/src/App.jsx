@@ -151,8 +151,7 @@ if (route.startsWith("/patient/")) {
   }
 }
 
-  // Show navigation on all pages except dashboard
-  const showNav = route !== '/dashboard';
+  // Navigation is shown on all pages except dashboard and patient detail pages
 
 return (
   <div>

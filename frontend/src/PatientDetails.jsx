@@ -1,5 +1,5 @@
 import "./PatientDetails.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import API_BASE from "./config";
 
@@ -12,30 +12,7 @@ export default function PatientDetails({ patientId }) {
   const [latestVital, setLatestVital] = useState(null);
   const [alerts, setAlerts] = useState([]);
 
-  useEffect(() => {
-    loadData();
-
-    const interval = setInterval(() => {
-      loadData();
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [patientId]);
-
-  const assignDevice = async () => {
-    try {
-      await axios.post(`${API_BASE}/device/assign`, {
-        patient_id: patientId,
-        device_code: deviceCode,
-      });
-
-      window.location.reload();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const patientRes = await axios.get(`${API_BASE}/patient/${patientId}`);
       setPatient(patientRes.data);
@@ -52,6 +29,28 @@ export default function PatientDetails({ patientId }) {
       setAlerts(alertRes.data);
     } catch (err) {
       console.error("Load Data Error:", err);
+    }
+  }, [patientId]);
+
+  useEffect(() => {
+    loadData();
+
+    const interval = setInterval(() => {
+      loadData();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [loadData]);
+
+  const assignDevice = async () => {
+    try {
+      await axios.post(`${API_BASE}/device/assign`, {
+        patient_id: patientId,
+        device_code: deviceCode,
+      });
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
     }
   };
 
