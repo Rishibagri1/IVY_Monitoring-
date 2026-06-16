@@ -186,8 +186,8 @@ const loadAlerts = async () => {
     }
   };
 
-  const isAdmin = true;
-  const isDoctor = true;
+  const isAdmin = clinician.role === 'Admin';
+  const isDoctor = clinician.role === 'Nurse' || clinician.role === 'Admin' || clinician.role === 'Doctor';
 
   return (
     <div className="dashboard">
@@ -321,24 +321,26 @@ const loadAlerts = async () => {
              </div>
            )}
 
-           <div className="card-actions-row" style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
-             <button
-               className="btn-live-monitor"
-               style={{ flex: 1, marginTop: 0 }}
-               onClick={() =>
-                 (window.location.hash =
-                   `#/patient/${patient.patient_id}`)
-               }
-             >
-               Telemetry →
-             </button>
-             <button
-               className="btn-clear-patient"
-               onClick={() => handleClearPatient(patient.patient_id, patient.full_name)}
-             >
-               Clear
-             </button>
-           </div>
+            <div className="card-actions-row" style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+              <button
+                className="btn-live-monitor"
+                style={{ flex: 1, marginTop: 0 }}
+                onClick={() =>
+                  (window.location.hash =
+                    `#/patient/${patient.patient_id}`)
+                }
+              >
+                Telemetry →
+              </button>
+              {isAdmin && (
+                <button
+                  className="btn-clear-patient"
+                  onClick={() => handleClearPatient(patient.patient_id, patient.full_name)}
+                >
+                  Clear
+                </button>
+              )}
+            </div>
          </div>
        );
      })}

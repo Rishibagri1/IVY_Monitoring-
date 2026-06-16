@@ -4,6 +4,7 @@ import axios from "axios";
 
 export default function PatientDetails({ patientId }) {
   const clinician = JSON.parse(localStorage.getItem("clinician")) || {};
+  const isAdmin = clinician.role === 'Admin';
   const [patient, setPatient] = useState(null);
   const [device, setDevice] = useState(null);
   const [deviceCode, setDeviceCode] = useState("");
@@ -78,15 +79,17 @@ export default function PatientDetails({ patientId }) {
 
         <div className="info-card patient-device-card">
           <h2>Device Information</h2>
-          <div className="device-assign">
-            <input
-              type="text"
-              placeholder="ESP001"
-              value={deviceCode}
-              onChange={(e) => setDeviceCode(e.target.value)}
-            />
-            <button className="assign-btn" onClick={assignDevice}>Assign Device</button>
-          </div>
+          {isAdmin && (
+            <div className="device-assign">
+              <input
+                type="text"
+                placeholder="ESP001"
+                value={deviceCode}
+                onChange={(e) => setDeviceCode(e.target.value)}
+              />
+              <button className="assign-btn" onClick={assignDevice}>Assign Device</button>
+            </div>
+          )}
           <div className="info-row"><span>Device Code</span><span>{device ? device.device_code : "Not Assigned"}</span></div>
           <div className="info-row"><span>Status</span><span>{device ? device.status : "Offline"}</span></div>
         </div>
