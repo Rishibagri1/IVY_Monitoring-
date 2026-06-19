@@ -21,23 +21,34 @@ router.post("/", async (req, res) => {
       );
       if (deviceCheck.rows.length > 0 && deviceCheck.rows[0].patient_id) {
         targetPatientId = deviceCheck.rows[0].patient_id;
-      } else {
-        return res.status(400).send(`Device ${device_code} is not assigned to any active patient.`);
       }
     }
 
-    if (!targetPatientId) {
-      return res.status(400).send("patient_id or device_code is required");
+    // 2. Verify target patient exists
+    let patientExists = false;
+    if (targetPatientId) {
+      const patientCheck = await pool.query(
+        "SELECT patient_id FROM patients WHERE patient_id = $1",
+        [targetPatientId]
+      );
+      if (patientCheck.rows.length > 0) {
+        patientExists = true;
+      }
     }
 
-    // 2. Verify patient exists in database (No auto-creation!)
-    const patientCheck = await pool.query(
-      "SELECT patient_id FROM patients WHERE patient_id = $1",
-      [targetPatientId]
-    );
+    // 3. Fallback: If target patient does not exist, and there is exactly ONE patient in the DB,
+    // automatically map the vitals to that single active patient.
+    if (!patientExists) {
+      const allPatients = await pool.query("SELECT patient_id, full_name FROM patients");
+      if (allPatients.rows.length === 1) {
+        targetPatientId = allPatients.rows[0].patient_id;
+        patientExists = true;
+        console.log(`Fallback mapping: routed vitals to the single active patient (ID: ${targetPatientId}, Name: ${allPatients.rows[0].full_name})`);
+      }
+    }
 
-    if (patientCheck.rows.length === 0) {
-      return res.status(404).send(`Patient with ID ${targetPatientId} does not exist. Vitals ignored.`);
+    if (!patientExists) {
+      return res.status(404).send(`Patient with ID ${targetPatientId || "unknown"} does not exist and no single patient fallback is available.`);
     }
 
     // 3. Insert vital records

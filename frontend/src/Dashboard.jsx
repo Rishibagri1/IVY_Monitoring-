@@ -22,7 +22,8 @@ export default function Dashboard() {
     age: '',
     gender: '',
     bed_number: '',
-    contact_number: ''
+    contact_number: '',
+    device_code: ''
   });
   const [formMessage, setFormMessage] = useState('');
 
@@ -97,12 +98,20 @@ const loadAlerts = async () => {
     setNewPatient((prev) => ({ ...prev, [name]: value }));
   };
 
+  const isFormValid =
+    (newPatient.full_name || '').trim() !== '' &&
+    newPatient.age !== '' &&
+    newPatient.gender !== '' &&
+    (newPatient.bed_number || '').trim() !== '' &&
+    (newPatient.contact_number || '').trim() !== '' &&
+    (newPatient.device_code || '').trim() !== '';
+
   const submitNewPatient = async (event) => {
     event.preventDefault();
     setFormMessage('');
 
-    if (!newPatient.full_name || !newPatient.age || !newPatient.gender || !newPatient.bed_number || !newPatient.contact_number) {
-      setFormMessage('All fields (Full Name, Age, Gender, Bed Number, and Contact Number) are required.');
+    if (!isFormValid) {
+      setFormMessage('All fields (including Device ID) are required.');
       return;
     }
 
@@ -112,7 +121,8 @@ const loadAlerts = async () => {
         age: Number(newPatient.age),
         gender: newPatient.gender,
         bed_number: newPatient.bed_number,
-        contact_number: newPatient.contact_number
+        contact_number: newPatient.contact_number,
+        device_code: newPatient.device_code
       });
 
       setFormMessage(`Patient ${response.data.full_name} admitted successfully.`);
@@ -121,7 +131,8 @@ const loadAlerts = async () => {
         age: '',
         gender: '',
         bed_number: '',
-        contact_number: ''
+        contact_number: '',
+        device_code: ''
       });
       setShowPatientForm(false);
       setShowPatientList(true);
@@ -469,9 +480,21 @@ const loadAlerts = async () => {
                     />
                   </label>
                 </div>
+                <div className="form-row">
+                  <label>
+                    Device ID
+                    <input
+                      type="text"
+                      placeholder="e.g. ESP32-DEV-1"
+                      value={newPatient.device_code}
+                      onChange={(e) => handlePatientInput('device_code', e.target.value)}
+                      required
+                    />
+                  </label>
+                </div>
                 {formMessage && <div className="form-message">{formMessage}</div>}
                 <div className="form-actions">
-                  <button type="submit" className="btn-admit form-submit">Submit Patient</button>
+                  <button type="submit" className="btn-admit form-submit" disabled={!isFormValid}>Submit Patient</button>
                   <button type="button" className="btn-secondary form-cancel" onClick={() => setShowPatientForm(false)}>
                     Cancel
                   </button>

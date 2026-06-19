@@ -225,6 +225,14 @@
   box-shadow: 0 8px 16px rgba(7, 111, 217, 0.24);
 }
 
+.btn-admit:disabled {
+  background: rgba(91, 143, 255, 0.15);
+  color: rgba(141, 179, 212, 0.4);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 .patient-form-card {
   background: rgba(12, 24, 54, 0.75);
   border: 1px solid rgba(91, 143, 255, 0.16);

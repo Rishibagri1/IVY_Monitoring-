@@ -69,24 +69,45 @@ router.get("/:id", async (req, res) => {
 // 3. POST (Add patient)
 router.post("/", async (req, res) => {
   try {
-    const { patient_code, full_name, age, gender, bed_number, contact_number } = req.body;
+    const { patient_code, full_name, age, gender, bed_number, contact_number, device_code } = req.body;
 
-    if (!full_name || !age || !gender || !bed_number || !contact_number) {
-      return res.status(400).send("All fields (full_name, age, gender, bed_number, contact_number) are required.");
+    if (!full_name || !age || !gender || !bed_number || !contact_number || !device_code) {
+      return res.status(400).send("All fields (full_name, age, gender, bed_number, contact_number, device_code) are required.");
     }
 
     // Generate a patient_code if not provided by frontend
     const code = patient_code || `P${Date.now()}`;
 
-    const result = await pool.query(
-      `INSERT INTO patients 
-      (patient_code, full_name, age, gender, bed_number, contact_number) 
-      VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
-      [code, full_name, age, gender, bed_number, contact_number]
-    );
+    const client = await pool.connect();
+    try {
+      await client.query("BEGIN");
+      
+      const patientResult = await client.query(
+        `INSERT INTO patients 
+        (patient_code, full_name, age, gender, bed_number, contact_number) 
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+        [code, full_name, age, gender, bed_number, contact_number]
+      );
+      
+      const newPatient = patientResult.rows[0];
 
-    res.json(result.rows[0]);
+      // Assign the device directly
+      await client.query(
+        `INSERT INTO devices (patient_id, device_code, status)
+         VALUES ($1, $2, $3)`,
+        [newPatient.patient_id, device_code, "active"]
+      );
+
+      await client.query("COMMIT");
+      res.json(newPatient);
+    } catch (txErr) {
+      await client.query("ROLLBACK");
+      throw txErr;
+    } finally {
+      client.release();
+    }
   } catch (err) {
+    console.error("POST /patient error:", err);
     res.status(500).send(err.message);
   }
 });
@@ -120,6 +141,13 @@ router.delete("/:id", async (req, res) => {
     await pool.query("DELETE FROM vitals WHERE patient_id=$1", [patientId]);
     await pool.query("DELETE FROM alerts WHERE patient_id=$1", [patientId]);
     await pool.query("DELETE FROM patients WHERE patient_id=$1", [patientId]);
+
+    // Restart serial sequence if database is now empty
+    const countRes = await pool.query("SELECT COUNT(*) FROM patients");
+    if (parseInt(countRes.rows[0].count, 10) === 0) {
+      await pool.query("ALTER SEQUENCE patients_patient_id_seq RESTART WITH 1");
+      console.log("DB: Reset patients sequence patients_patient_id_seq to 1 (table is empty)");
+    }
 
     res.send("Patient deleted");
   } catch (err) {
