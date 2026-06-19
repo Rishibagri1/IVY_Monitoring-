@@ -101,8 +101,8 @@ const loadAlerts = async () => {
     event.preventDefault();
     setFormMessage('');
 
-    if (!newPatient.full_name || !newPatient.age) {
-      setFormMessage('Full name and age are required.');
+    if (!newPatient.full_name || !newPatient.age || !newPatient.gender || !newPatient.bed_number || !newPatient.contact_number) {
+      setFormMessage('All fields (Full Name, Age, Gender, Bed Number, and Contact Number) are required.');
       return;
     }
 
@@ -161,6 +161,16 @@ const loadAlerts = async () => {
       console.error("Failed to clear patient:", error);
       const msg = error.response && error.response.data ? error.response.data : error.message;
       alert(`Failed to clear patient: ${msg}`);
+    }
+  };
+
+  const handleClearAllAlerts = async () => {
+    try {
+      await axios.put(`${API_BASE}/alert/resolve-all`);
+      await loadAlerts();
+    } catch (error) {
+      console.error("Failed to clear alarms:", error);
+      alert("Failed to clear alarms");
     }
   };
 
@@ -281,16 +291,16 @@ const loadAlerts = async () => {
                  <span className="unit">°C</span>
                </div>
              </div>
-             <div className="vital-indicator iv-bottle-card">
-               <div className="vital-label-row">
-                 <span className="vital-icon">💧</span>
-                 <span>IV Level</span>
-               </div>
-               <div className="vital-value-row">
-                 <span className="value">{ivLevel}</span>
-                 <span className="unit">{ivLevel === "--" ? "" : "%"}</span>
-               </div>
-             </div>
+              <div className="vital-indicator iv-bottle-card">
+                <div className="vital-label-row">
+                  <span className="vital-icon">💧</span>
+                  <span>IV Level</span>
+                </div>
+                <div className="vital-value-row">
+                  <span className="value">{ivLevel}</span>
+                  <span className="unit">{ivLevel === "--" ? "" : "mL"}</span>
+                </div>
+              </div>
            </div>
 
            {isCritical && (
@@ -328,8 +338,26 @@ const loadAlerts = async () => {
 
 {isDoctor && (
   <div className="alert-panel">
-
-    <h2>Active Alerts</h2>
+    <div className="alert-panel-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+      <h2>Active Alerts</h2>
+      <button 
+        className="btn-clear-alerts"
+        onClick={handleClearAllAlerts}
+        style={{
+          background: 'transparent',
+          border: '1px solid #ef4444',
+          color: '#ef4444',
+          padding: '6px 12px',
+          borderRadius: '6px',
+          cursor: 'pointer',
+          fontWeight: 600,
+          fontSize: '12px',
+          transition: 'all 0.2s'
+        }}
+      >
+        Clear Alarms
+      </button>
+    </div>
 
     {alerts.slice(0,10).map((alert) => (
 
@@ -412,6 +440,7 @@ const loadAlerts = async () => {
                     <select
                       value={newPatient.gender}
                       onChange={(e) => handlePatientInput('gender', e.target.value)}
+                      required
                     >
                       <option value="">Select</option>
                       <option value="Male">Male</option>
@@ -427,6 +456,7 @@ const loadAlerts = async () => {
                       type="text"
                       value={newPatient.bed_number}
                       onChange={(e) => handlePatientInput('bed_number', e.target.value)}
+                      required
                     />
                   </label>
                   <label>
@@ -435,6 +465,7 @@ const loadAlerts = async () => {
                       type="text"
                       value={newPatient.contact_number}
                       onChange={(e) => handlePatientInput('contact_number', e.target.value)}
+                      required
                     />
                   </label>
                 </div>

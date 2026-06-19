@@ -8,7 +8,15 @@ const pool = new Pool({
 });
 
 pool.connect()
-  .then(() => console.log("DB Connected"))
+  .then(async () => {
+    console.log("DB Connected");
+    try {
+      await pool.query("ALTER TABLE alerts ADD COLUMN IF NOT EXISTS is_resolved BOOLEAN DEFAULT false;");
+      console.log("Database migration: is_resolved column verified in alerts table");
+    } catch (migErr) {
+      console.error("Migration Error:", migErr.message);
+    }
+  })
   .catch(err => console.error("DB Error", err.message));
 
 module.exports = pool;

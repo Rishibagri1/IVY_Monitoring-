@@ -71,6 +71,10 @@ router.post("/", async (req, res) => {
   try {
     const { patient_code, full_name, age, gender, bed_number, contact_number } = req.body;
 
+    if (!full_name || !age || !gender || !bed_number || !contact_number) {
+      return res.status(400).send("All fields (full_name, age, gender, bed_number, contact_number) are required.");
+    }
+
     // Generate a patient_code if not provided by frontend
     const code = patient_code || `P${Date.now()}`;
 

@@ -118,7 +118,7 @@ export default function PatientDetails({ patientId }) {
               <div className="vital-block">
                 <span className="vital-label">IV Level</span>
                 <span className="vital-value">{latestVital.iv_level ?? "--"}</span>
-                <span className="vital-unit">{latestVital.iv_level !== null && latestVital.iv_level !== undefined ? "%" : ""}</span>
+                <span className="vital-unit">{latestVital.iv_level !== null && latestVital.iv_level !== undefined ? "mL" : ""}</span>
               </div>
             </div>
           ) : (
