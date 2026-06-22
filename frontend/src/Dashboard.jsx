@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import API_BASE from './config';
 
-export default function Dashboard() {
+export default function Dashboard({ theme, setTheme }) {
   const clinician =
   JSON.parse(localStorage.getItem("clinician")) || {};
   const [stats, setStats] = useState({
@@ -196,10 +196,9 @@ const loadAlerts = async () => {
           <h1>Vital Monitoring</h1>
         </div>
         <div className="topbar-center">
-          <select className="theme-select">
-            <option>Slate Dark</option>
-            <option>Light</option>
-            <option>Dark</option>
+          <select className="theme-select" value={theme} onChange={(e) => setTheme(e.target.value)}>
+            <option value="dark">Slate Dark</option>
+            <option value="light">Medical Light</option>
           </select>
           <div className="status-indicator">
             <span className="dot"></span>

@@ -232,7 +232,7 @@ function TelemetryChart({ title, data, dataKey, lowThreshold, highThreshold, uni
   );
 }
 
-export default function PatientDetails({ patientId }) {
+export default function PatientDetails({ patientId, theme, setTheme }) {
   const clinician = JSON.parse(localStorage.getItem("clinician")) || {};
   const isAdmin = clinician.role === 'Admin';
   const [patient, setPatient] = useState(null);
@@ -339,7 +339,16 @@ export default function PatientDetails({ patientId }) {
           <h1 className="patient-details-title">{patient.full_name}</h1>
           <p className="patient-subtitle">{patient.patient_code} · Bed {patient.bed_number || "N/A"}</p>
         </div>
-        <button className="back-btn" onClick={() => (window.location.hash = "#/dashboard")}>← Back to Dashboard</button>
+        <div className="header-actions">
+          <button 
+            className="theme-toggle-btn" 
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
+          <button className="back-btn" onClick={() => (window.location.hash = "#/dashboard")}>← Back to Dashboard</button>
+        </div>
       </div>
 
       <div className="patient-details-grid">

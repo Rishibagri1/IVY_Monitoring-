@@ -3,12 +3,13 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 32px;
-  background: rgba(2, 9, 22, 0.95);
-  border-bottom: 1px solid rgba(91, 143, 255, 0.12);
+  background: var(--navbar-bg);
+  border-bottom: 1px solid var(--border-color);
   backdrop-filter: blur(18px);
   position: sticky;
   top: 0;
   z-index: 100;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .navbar-brand {
@@ -17,7 +18,7 @@
   gap: 12px;
   font-size: 1.4rem;
   font-weight: 700;
-  color: #e9f4ff;
+  color: var(--text-primary);
 }
 
 .brand-icon {
@@ -27,6 +28,7 @@
 
 .navbar-menu {
   display: flex;
+  align-items: center;
   gap: 32px;
   list-style: none;
   margin: 0;
@@ -34,7 +36,7 @@
 }
 
 .navbar-menu a {
-  color: #9bb7d6;
+  color: var(--text-muted);
   text-decoration: none;
   font-weight: 500;
   font-size: 1rem;
@@ -60,6 +62,27 @@
   background: linear-gradient(90deg, #22d3ee, #0d9bff);
 }
 
+/* Theme Toggle Button Styling */
+.theme-toggle-btn {
+  background: rgba(91, 143, 255, 0.08);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background: rgba(91, 143, 255, 0.16);
+  transform: scale(1.05);
+}
+
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
@@ -68,6 +91,6 @@
   }
 
   .navbar-menu {
-    gap: 16px;
+    gap: 20px;
   }
 }

@@ -478,3 +478,114 @@
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
 }
+
+/* ============================================================
+   LIGHT MODE OVERRIDES FOR PATIENT DETAILS
+   ============================================================ */
+[data-theme='light'] .patient-details-container {
+  background: var(--bg-gradient);
+  color: var(--text-secondary);
+}
+
+[data-theme='light'] .patient-details-header {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='light'] .patient-details-title {
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .patient-subtitle,
+[data-theme='light'] .info-row span:first-child,
+[data-theme='light'] .vital-label,
+[data-theme='light'] .vital-unit,
+[data-theme='light'] .updated-text {
+  color: var(--text-muted);
+}
+
+[data-theme='light'] .info-card {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='light'] .info-card h2 {
+  color: #0ea5e9;
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='light'] .info-row {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='light'] .info-row span:last-child,
+[data-theme='light'] .vital-value {
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .device-assign input {
+  border-color: var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .device-assign input:focus {
+  border-color: #22d3ee;
+}
+
+[data-theme='light'] .vital-block {
+  background: var(--vital-block-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme='light'] .vital-block:hover {
+  background: var(--vital-block-hover);
+  border-color: var(--border-color);
+}
+
+[data-theme='light'] .trend-chart-container.hero {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='light'] .trend-chart-container.hero .trend-chart-title {
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .trend-chart-container.card {
+  background: var(--vital-block-bg);
+  border-color: var(--border-color);
+}
+
+[data-theme='light'] .trend-chart-container.card:hover {
+  background: var(--vital-block-hover);
+}
+
+[data-theme='light'] .trend-chart-container.card.active {
+  border-color: #22d3ee;
+  background: var(--card-bg);
+}
+
+[data-theme='light'] .trend-chart-container.card.active .trend-chart-title {
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .svg-container {
+  background: var(--svg-bg);
+}
+
+[data-theme='light'] .svg-container text {
+  fill: var(--text-muted) !important;
+}
+
+[data-theme='light'] .svg-container line:not([stroke^="rgba(239,"]) {
+  stroke: var(--grid-color) !important;
+}
+
+/* Specific styles for theme-toggle-btn in details page */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}

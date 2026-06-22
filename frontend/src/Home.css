@@ -1,14 +1,15 @@
 .home {
   min-height: 100vh;
-  background: linear-gradient(180deg, #020916 0%, #071427 100%);
-  color: #e9f4ff;
+  background: var(--bg-gradient);
+  color: var(--text-secondary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .hero {
   padding: 80px 32px;
   text-align: center;
-  background: radial-gradient(circle at top left, rgba(29, 188, 255, 0.12), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(0, 236, 255, 0.08), transparent 18%);
+  background: radial-gradient(circle at top left, rgba(29, 188, 255, 0.08), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(0, 236, 255, 0.05), transparent 18%);
 }
 
 .hero-content {
@@ -36,14 +37,14 @@
 
 .hero h2 {
   font-size: 1.4rem;
-  color: #9bb7d6;
+  color: var(--text-muted);
   margin: 0 0 16px;
   font-weight: 600;
 }
 
 .hero p {
   font-size: 1.1rem;
-  color: #8db3d4;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
@@ -55,7 +56,8 @@
 
 .facilities {
   padding: 80px 32px;
-  background: rgba(8, 19, 44, 0.4);
+  background: var(--card-bg);
+  transition: background 0.3s ease;
 }
 
 .facilities h2 {
@@ -63,6 +65,7 @@
   font-size: 2.2rem;
   margin-bottom: 60px;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .facilities-grid {
@@ -74,10 +77,10 @@
 .facility-card {
   padding: 32px;
   border-radius: 18px;
-  background: rgba(12, 24, 54, 0.6);
-  border: 1px solid rgba(91, 143, 255, 0.12);
+  background: var(--vital-block-bg);
+  border: 1px solid var(--border-color);
   backdrop-filter: blur(12px);
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
 }
 
 .facility-card:hover {
@@ -98,14 +101,14 @@
 }
 
 .facility-card p {
-  color: #9bb7d6;
+  color: var(--text-muted);
   line-height: 1.6;
   font-size: 0.95rem;
 }
 
 .about-system {
   padding: 80px 32px;
-  background: radial-gradient(circle at bottom right, rgba(0, 236, 255, 0.08), transparent 30%);
+  background: radial-gradient(circle at bottom right, rgba(0, 236, 255, 0.05), transparent 30%);
 }
 
 .about-system h2 {
@@ -113,6 +116,7 @@
   font-size: 2.2rem;
   margin-bottom: 40px;
   letter-spacing: -0.02em;
+  color: var(--text-primary);
 }
 
 .about-content {
@@ -123,7 +127,7 @@
 .about-content p {
   font-size: 1rem;
   line-height: 1.8;
-  color: #9bb7d6;
+  color: var(--text-muted);
   margin-bottom: 24px;
   text-align: center;
 }

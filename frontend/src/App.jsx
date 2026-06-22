@@ -94,6 +94,12 @@ function LoginPage() {
 
 export default function App() {
   const [route, setRoute] = useState(window.location.hash.slice(1) || '/');
+  const [theme, setTheme] = useState(() => localStorage.getItem("theme") || "dark");
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     const onHash = () => {
@@ -110,63 +116,56 @@ export default function App() {
     axios.get(`${API_BASE}/check`).catch(() => {});
   }, []);
 
-// Render content based on route
-let content;
+  // Render content based on route
+  let content;
 
-if (route.startsWith("/patient/")) {
+  if (route.startsWith("/patient/")) {
+    const clinician = JSON.parse(localStorage.getItem("clinician")) || {};
 
-  const clinician =
-    JSON.parse(localStorage.getItem("clinician")) || {};
-
-  if (!clinician.userid && !clinician.full_name) {
-
-    content = (
-      <h2 style={{padding:"20px"}}>
-        Access Denied - Please Login
-      </h2>
-    );
-
+    if (!clinician.userid && !clinician.full_name) {
+      content = (
+        <h2 style={{padding:"20px"}}>
+          Access Denied - Please Login
+        </h2>
+      );
+    } else {
+      const patientId = route.split("/")[2];
+      content = (
+        <PatientDetails patientId={patientId} theme={theme} setTheme={setTheme} />
+      );
+    }
   } else {
+    switch (route) {
+      case '/':
+        content = <Home theme={theme} setTheme={setTheme} />;
+        break;
 
-    const patientId = route.split("/")[2];
+      case '/login':
+        content = <LoginPage theme={theme} setTheme={setTheme} />;
+        break;
 
-    content = (
-      <PatientDetails patientId={patientId} />
-    );
+      case '/register':
+        content = <Register theme={theme} setTheme={setTheme} />;
+        break;
+
+      case '/dashboard':
+        content = <Dashboard theme={theme} setTheme={setTheme} />;
+        break;
+
+      default:
+        content = <Home theme={theme} setTheme={setTheme} />;
+    }
   }
-}else {
-  switch (route) {
-    case '/':
-      content = <Home />;
-      break;
-
-    case '/login':
-      content = <LoginPage />;
-      break;
-
-    case '/register':
-      content = <Register />;
-      break;
-
-    case '/dashboard':
-      content = <Dashboard />;
-      break;
-
-    default:
-      content = <Home />;
-  }
-}
 
   // Navigation is shown on all pages except dashboard and patient detail pages
+  return (
+    <div>
+      {route !== "/dashboard" &&
+       !route.startsWith("/patient/") && (
+        <Navigation theme={theme} setTheme={setTheme} />
+      )}
 
-return (
-  <div>
-    {route !== "/dashboard" &&
-     !route.startsWith("/patient/") && (
-      <Navigation />
-    )}
-
-    {content}
-  </div>
-);
+      {content}
+    </div>
+  );
 }
