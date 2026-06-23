@@ -26,6 +26,9 @@ export default function Dashboard({ theme, setTheme }) {
     device_code: ''
   });
   const [formMessage, setFormMessage] = useState('');
+  const [showUserList, setShowUserList] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
 loadMonitoringData();
@@ -93,6 +96,28 @@ const loadAlerts = async () => {
     console.error(err);
   }
 };
+
+  const loadUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const response = await axios.get(`${API_BASE}/user`);
+      setUsers(response.data || []);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleUpdateRole = async (userId, newRole) => {
+    try {
+      await axios.put(`${API_BASE}/user/${userId}/role`, { role: newRole });
+      await loadUsers();
+    } catch (error) {
+      console.error('Failed to update user role:', error);
+      alert('Failed to update user role');
+    }
+  };
 
   const handlePatientInput = (name, value) => {
     setNewPatient((prev) => ({ ...prev, [name]: value }));
@@ -387,9 +412,9 @@ const loadAlerts = async () => {
 
           {isAdmin && (
             <div className="section-header">
-              <h2>Patient Management</h2>
+              <h2>System Control & Management</h2>
             </div>
-)}
+          )}
           {isAdmin && (
           <div className="monitoring-controls">
             {isAdmin && (
@@ -398,23 +423,38 @@ const loadAlerts = async () => {
               onClick={() => {
                 setShowPatientForm((prev) => !prev);
                 setShowPatientList(false);
+                setShowUserList(false);
                 setFormMessage('');
-    }}
-  >
-    + Admit New Patient
-  </button>
-)}
+              }}
+            >
+              + Admit New Patient
+            </button>
+            )}
             <button
               className="btn-secondary"
               onClick={async () => {
                 const show = !showPatientList;
                 setShowPatientList(show);
                 setShowPatientForm(false);
+                setShowUserList(false);
                 setFormMessage('');
                 if (show) await loadPatients();
               }}
             >
-              {showPatientList ? 'Hide Existing Patients' : 'View Existing Patients'}
+              {showPatientList ? 'Hide Patients' : 'View Patients'}
+            </button>
+            <button
+              className="btn-secondary"
+              onClick={async () => {
+                const show = !showUserList;
+                setShowUserList(show);
+                setShowPatientList(false);
+                setShowPatientForm(false);
+                setFormMessage('');
+                if (show) await loadUsers();
+              }}
+            >
+              {showUserList ? 'Hide Clinicians' : 'Manage Clinicians'}
             </button>
           </div>
           )}
@@ -503,11 +543,62 @@ const loadAlerts = async () => {
           )}
 
           <div className="monitoring-grid">
-            {!showPatientList && !showPatientForm && (
+            {!showPatientList && !showPatientForm && !showUserList && (
               <div className="empty-state">
                 <div className="empty-icon">📊</div>
-                <p>Register a new patient or view existing database records.</p>
-                <p className="empty-hint">Use the buttons above to admit or view existing patients.</p>
+                <p>Register a new patient, view database records, or manage system users.</p>
+                <p className="empty-hint">Use the buttons above to get started.</p>
+              </div>
+            )}
+
+            {showUserList && loadingUsers && (
+              <div className="empty-state">
+                <div className="empty-icon">⏳</div>
+                <p>Loading clinician records...</p>
+              </div>
+            )}
+
+            {isAdmin &&
+            showUserList &&
+            !loadingUsers &&
+            users.length > 0 && (
+              <div className="patient-table-wrapper" style={{ width: '100%' }}>
+                <table className="patient-table">
+                  <thead>
+                    <tr>
+                      <th>User ID</th>
+                      <th>Name</th>
+                      <th>Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((u) => (
+                      <tr key={u.user_id}>
+                        <td>{u.userid}</td>
+                        <td>{u.full_name}</td>
+                        <td>
+                          <select
+                            value={u.role}
+                            onChange={(e) => handleUpdateRole(u.user_id, e.target.value)}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              background: 'var(--input-bg)',
+                              color: 'var(--text-primary)',
+                              border: '1px solid var(--border-color)',
+                              cursor: 'pointer'
+                            }}
+                            disabled={String(u.userid) === String(clinician.userid)}
+                          >
+                            <option value="Admin">Admin</option>
+                            <option value="Nurse">Nurse</option>
+                            <option value="Doctor">Doctor</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
 

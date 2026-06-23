@@ -59,4 +59,29 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// PUT update user role
+router.put('/:id/role', async (req, res) => {
+  try {
+    const { role } = req.body;
+    const userId = req.params.id;
+
+    if (!role) {
+      return res.status(400).json('Role is required');
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET role = $1 WHERE user_id = $2 RETURNING user_id, full_name, userid, role, created_at',
+      [role, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json('User not found');
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
+});
+
 module.exports = router;
